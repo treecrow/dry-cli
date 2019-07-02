@@ -5,6 +5,7 @@ const glob = require("glob");
 const inquirer = require("inquirer");
 
 const download = require("../lib/download");
+const generator = require("../lib/generator");
 
 // 初始化 commander
 const program = require("commander");
@@ -89,11 +90,18 @@ if (next) {
             default: `A project named ${context.name}`
           }
         ])
-        .then(answers => answers);
+        .then(answers => {
+          return {
+            ...context,
+            metadata: {
+              ...answers
+            }
+          };
+        });
     })
     .then(context => {
-      // 整合模版渲染信息
-      console.log(context);
+      // 添加生成的逻辑
+      return generator(context.metadata, context.root);
     })
     .catch(err => {
       console.error(err);
