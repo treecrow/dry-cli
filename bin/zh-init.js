@@ -2,6 +2,7 @@
 const path = require("path");
 const fs = require("fs");
 const glob = require("glob");
+const inquirer = require("inquirer");
 
 const download = require("../lib/download");
 
@@ -21,8 +22,8 @@ if (!projectName) {
   return;
 }
 
-// 确定项目根路径
-let rootName = "";
+// 是否进行下一步（确定项目根路径）
+let next;
 const list = glob.sync("*");
 if (list.length) {
   if (
@@ -35,13 +36,66 @@ if (list.length) {
     console.log(`项目 ${projectName} 已经存在`);
     return;
   }
-  rootName = projectName;
+  next = Promise.resolve(projectName);
 } else if (curCatalog === projectName) {
-  rootName = ".";
+  next = inquirer
+    .prompt([
+      {
+        name: "buildInCurrent",
+        message:
+          "当前目录为空，且目录名称和项目名称相同，是否直接在当前目录下创建新项目？",
+        type: "confirm",
+        default: true
+      }
+    ])
+    .then(answer => {
+      return Promise.resolve(answer.buildInCurrent ? "." : projectName);
+    });
 } else {
-  rootName = projectName;
+  next = Promise.resolve(projectName);
 }
 
-download(rootName)
-  .then(target => console.log(target))
-  .catch(err => console.log(err));
+// 下一步，下载模版
+if (next) {
+  next
+    .then(projectRoot => {
+      if (projectRoot !== ".") {
+        fs.mkdirSync(projectRoot);
+      }
+      return download(projectRoot).then(target => {
+        return {
+          name: projectRoot, // 项目的名称
+          root: projectRoot,
+          downloadTemp: target
+        };
+      });
+    })
+    .then(context => {
+      return inquirer
+        .prompt([
+          {
+            name: "projectName",
+            message: "项目的名称",
+            default: context.name
+          },
+          {
+            name: "projectVersion",
+            message: "项目的版本号",
+            default: "1.0.0"
+          },
+          {
+            name: "projectDescription",
+            message: "项目的简介",
+            default: `A project named ${context.name}`
+          }
+        ])
+        .then(answers => answers);
+    })
+    .then(context => {
+      // 整合模版渲染信息
+      console.log(context);
+    })
+    .catch(err => {
+      console.error(err);
+    });
+}
