@@ -1,48 +1,56 @@
 #!/usr/bin/env node
 
 const path = require("path");
+const fs = require("fs");
 const CMD = require("commander"); // 命令行制作
-const glob = require("glob"); // 匹配文件
 const inquirer = require("inquirer"); // 终端交互
+const ora = require("ora"); // 优化加载等待
 const downloadGitRepo = require("download-git-repo"); // 下载远程模版
 const Metalsmith = require("metalsmith"); // 静态网站生成器
 const Handlebars = require("handlebars"); // 模版渲染器
+const logSymbols = require("log-symbols"); // 符号
+const rimraf = require("rimraf");
 
 // 初始化 commander
 CMD.version("0.0.1");
 
+// command-create
 CMD.command("create <project-name>")
   .description("Create a project")
   .action(function(projectName) {
-    // 当前目录下面是否有与创建的项目同名的文件夹
-    const hasSameNameFolder =
-      glob.sync("*").filter(folderName => folderName === projectName).length >
-      0;
     // 项目路径
     const projectPath = path.resolve(process.cwd(), projectName);
+
+    // ========== 整合项目配置（通过终端交互） ==========
     inquirer
       .prompt([
-        // 是否确定创建项目
         {
           name: "build",
           message:
             "There are folders with the same name. Are you sure you want to create a project?",
           type: "confirm",
           default: true,
-          when: hasSameNameFolder
+          when: fs.existsSync(projectPath) // 同名文件夹已经存在
         },
-        // 如何解决项目名与文件夹名冲突
         {
           name: "conflict",
           message: "How to resolve folder conflicts?",
           type: "list",
           choices: ["merge", "overwrite"],
           when: answers => {
-            if (answers.build === false) process.exit(1);
+            if (answers.build === false) {
+              console.log(logSymbols.info, "取消创建项目，退出项目构建！");
+              process.exit(1);
+            }
             return answers.build === true;
           }
         },
-        // 项目支持到特性
+        {
+          name: "template",
+          message: "Please select a template project:",
+          type: "list",
+          choices: ["vue-bms"]
+        },
         {
           name: "features",
           message: "Select project support features:",
@@ -55,43 +63,86 @@ CMD.command("create <project-name>")
         }
       ])
       .then(answers => {
-        // 整合项目所有配置
+        // 项目配置项
         projectConfig = {
           projectName, // 项目名
           projectPath, // 项目路径
+          // 项目描述
+          describe: `A project build base on the template of [template-${
+            answers.template
+          }](https://github.com/treecrow/template-${answers.template})`, // 项目描述
           downloadTempPath: path.join(projectPath, ".download-temp"), // 下载临时目录
           build: true, // 到此步骤肯定是要创建项目
-          conflict: "no", // 默认项目名与文件夹名无冲突
-          ...answers
+          conflict: answers.conflict || "merge", // 默认项目名与文件夹名无冲突
+          template: answers.template, // 项目模版
+          // 支持的特性
+          features: answers.features.reduce((literal, cur) => {
+            literal[cur] = true;
+            return literal;
+          }, {})
         };
-        // 下载模版库
+
+        console.log(
+          logSymbols.success,
+          `获取项目配置项: ${JSON.stringify(projectConfig, null, 2)}`
+        );
+
+        // ========== 下载项目模版 ==========
+        const spinner = ora(`正在下载项目模板...`);
+        spinner.start();
         downloadGitRepo(
-          "github:treecrow/template-vue-bms#master",
+          `github:treecrow/template-${projectConfig.template}#master`,
           projectConfig.downloadTempPath,
           {
             clone: true
           },
           err => {
-            console.log(err ? "Error" : "Success");
-            // 假设成功
-            Metalsmith(process.cwd())
-              .clean(false) // 不清空资源目的地
+            if (err) {
+              spinner.fail(`项目模版下载失败: ${err}`);
+              return;
+            }
+            spinner.succeed("项目模版下载完成！");
+
+            // ========== 编译项目模版 ==========
+            // metalsmith 实例
+            const metalsmith = Metalsmith(process.cwd())
+              .clean(projectConfig.conflict === "overwrite")
               .source(projectConfig.downloadTempPath)
-              .destination(projectConfig.projectPath)
-              .use((files, metalsmith, done) => {
-                Object.keys(files).forEach(fileName => {
-                  const curFile = files[fileName];
-                  curFile.contents = new Buffer(
-                    Handlebars.compile(curFile.contents.toString())(
-                      projectConfig
-                    )
-                  );
-                });
-                done();
-              })
-              .build(err => {
-                console.log(err ? "Error" : "Success");
+              .destination(projectConfig.projectPath);
+            // metalsmith 插件
+            metalsmith.use((files, metalsmith, done) => {
+              Object.keys(files).forEach(fileName => {
+                const curFile = files[fileName];
+                // 只编译指定类型的文件（排除静态资源等）
+                if (
+                  [".vue", ".js", ".json", ".md"].includes(
+                    path.extname(fileName)
+                  )
+                ) {
+                  curFile.contents = Handlebars.compile(
+                    curFile.contents.toString()
+                  )(projectConfig);
+                }
               });
+              done();
+            });
+            // metalsmith 构建
+            metalsmith.build(err => {
+              if (err) {
+                console.log(logSymbols.error, `编译项目模版失败：${err}`);
+                return;
+              }
+              console.log(logSymbols.success, "编译项目模版");
+
+              // ========== 删除项目模版 ==========
+              rimraf(projectConfig.downloadTempPath, err => {
+                if (err) {
+                  console.log(logSymbols.error, `删除项目模版失败：${err}`);
+                  return;
+                }
+                console.log(logSymbols.success, "删除项目模版，成功创建项目");
+              });
+            });
           }
         );
       });
