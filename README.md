@@ -6,13 +6,15 @@
 
 - [nodejs 工具开发(一)](https://zhuanlan.zhihu.com/p/40223877)
 - [基于 nodejs 的脚手架工具开发经历](https://zhuanlan.zhihu.com/p/31988855)
-- [vue-cli 是如何工作的](https://segmentfault.com/a/1190000009803941)
 
-## cli 功能概览
+## 快速开始
 
 ```bash
-zh create xxx
+npm install -g zh-cli // 安装
+npm create <project-name> // 创建项目
 ```
+
+## cli 功能概览
 
 | 功能                                     | 是否支持 |
 | ---------------------------------------- | -------- |
