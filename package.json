@@ -2,7 +2,6 @@
   "name": "zh-cli",
   "version": "1.0.0",
   "description": "Very simple front-end development scaffolding that can be used as an example project",
-  "main": "index.js",
   "directories": {
     "lib": "lib"
   },

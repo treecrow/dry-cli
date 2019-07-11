@@ -9,7 +9,7 @@
 
 ## 快速开始
 
-```bash
+```sh
 npm install -g zh-cli // 安装
 npm create <project-name> // 创建项目
 ```
