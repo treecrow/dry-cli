@@ -1,4 +1,4 @@
-# zh-cli
+# dtc-cli
 
 > 前端开发脚手架
 
@@ -10,7 +10,7 @@
 ## 快速开始
 
 ```sh
-npm install -g zh-cli // 安装
+npm install -g dtc-cli // 安装
 npm create <project-name> // 创建项目
 ```
 

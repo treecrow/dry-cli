@@ -1,12 +1,12 @@
 {
-  "name": "zh-cli",
+  "name": "dtc-cli",
   "version": "1.0.0",
   "description": "Very simple front-end development scaffolding that can be used as an example project",
   "directories": {
     "lib": "lib"
   },
   "bin": {
-    "zh": "./bin/zh"
+    "dtc": "./bin/dtc"
   },
   "repository": {
     "type": "git",
