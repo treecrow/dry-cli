@@ -1,8 +1,8 @@
 {
-  "name": "dtc-cli",
+  "name": "@treecrow/cli",
   "version": "1.0.0",
   "keyword": [
-    "dtc",
+    "dry",
     "cli",
     "scaffold"
   ],
@@ -11,18 +11,18 @@
     "lib": "lib"
   },
   "bin": {
-    "dtc": "./bin/dtc"
+    "dry": "./bin/dry"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/treecrow/dtc-cli.git"
+    "url": "git+https://github.com/treecrow/dry-cli.git"
   },
   "author": "treecrow <drytreecrow@gmail.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/treecrow/dtc-cli/issues"
+    "url": "https://github.com/treecrow/dry-cli/issues"
   },
-  "homepage": "https://github.com/treecrow/dtc-cli#readme",
+  "homepage": "https://github.com/treecrow/dry-cli#readme",
   "dependencies": {
     "commander": "^2.20.0",
     "download-git-repo": "^2.0.0",
