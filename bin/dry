@@ -57,7 +57,6 @@ CMD.command("create <project-name>")
           type: "checkbox",
           choices: [
             { name: "pwa", checked: true },
-            { name: "link", checked: true },
             { name: "mock", checked: true }
           ]
         }
