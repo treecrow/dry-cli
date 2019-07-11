@@ -12,7 +12,7 @@ const logSymbols = require("log-symbols"); // 符号
 const rimraf = require("rimraf");
 
 // 初始化 commander
-CMD.version("0.0.1");
+CMD.version(require('../package.json').version);
 
 // command-create
 CMD.command("create <project-name>")
