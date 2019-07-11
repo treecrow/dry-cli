@@ -6,9 +6,6 @@
   "directories": {
     "lib": "lib"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "bin": {
     "zh": "./bin/zh"
   },
@@ -16,7 +13,7 @@
     "type": "git",
     "url": "git+https://github.com/treecrow/zh-cli.git"
   },
-  "author": "",
+  "author": "treecrow <drytreecrow@gmail.com>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/treecrow/zh-cli/issues"
