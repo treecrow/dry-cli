@@ -68,7 +68,7 @@ CMD.command("create <project-name>")
           projectName, // 项目名
           projectPath, // 项目路径
           // 项目描述
-          describe: `A project build base on the template of [template-${
+          description: `A project build base on the template of [template-${
             answers.template
           }](https://github.com/treecrow/template-${answers.template})`, // 项目描述
           downloadTempPath: path.join(projectPath, ".download-temp"), // 下载临时目录
