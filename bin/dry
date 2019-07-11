@@ -156,7 +156,7 @@ CMD.parse(process.argv);
 CMD.on("--help", function() {
   console.log("");
   console.log("Examples:");
-  console.log("  $ zh create <project-name>");
+  console.log("  $ dry create <project-name>");
 });
 // 默认展示帮助信息
 if (!process.argv[2]) {
