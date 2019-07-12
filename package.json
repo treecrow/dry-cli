@@ -7,9 +7,6 @@
     "scaffold"
   ],
   "description": "Very simple front-end development scaffolding that can be used as an example project",
-  "directories": {
-    "lib": "lib"
-  },
   "bin": {
     "dry": "./bin/dry"
   },
