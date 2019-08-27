@@ -11,7 +11,7 @@
 
 ```sh
 npm install -g @treecrow/cli // 安装
-npm create <project-name> // 创建项目
+dry create <project-name> // 创建项目
 ```
 
 ## cli 功能概览
